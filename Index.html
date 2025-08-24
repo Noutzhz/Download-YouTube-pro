@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Downloader YouTube PRO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1f1f1f;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 400px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background-color: #ff4c4c;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #e03b3b;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .info {
+            font-size: 14px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Downloader YouTube PRO</h1>
+        <form method="post">
+            <input type="text" name="url" placeholder="Cole link do YouTube (vídeo ou playlist)" required>
+            <select name="format">
+                <option value="wav">WAV (máxima qualidade)</option>
+                <option value="mp3">MP3</option>
+            </select>
+            <button type="submit">Baixar</button>
+        </form>
+        <p class="info">O site suporta vídeos individuais e playlists. O BPM será buscado automaticamente online quando possível.</p>
+    </div>
+</body>
+</html>
