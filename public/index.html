@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Playlist Downloader WAV</title>
+</head>
+<body>
+  <h1>Baixar Playlist em WAV</h1>
+  <textarea id="urls" rows="10" cols="50" placeholder="Cole as URLs (uma por linha)"></textarea><br>
+  <button onclick="baixar()">Baixar</button>
+
+  <script>
+    async function baixar() {
+      const urls = document.getElementById('urls').value.split('\n').map(u => u.trim()).filter(Boolean);
+      const res = await fetch('/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ urls })
+      });
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'playlist.zip';
+      a.click();
+    }
+  </script>
+</body>
+</html>
