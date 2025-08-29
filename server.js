@@ -10,17 +10,18 @@ import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 
 ffmpeg.setFfmpegPath(ffmpegStatic);
-
 const app = express();
 app.use(express.json());
 
 app.post('/download', async (req, res) => {
-  const { playlistUrl } = req.body;
-  if (!playlistUrl) return res.status(400).send('Envie { playlistUrl: "URL_da_playlist" }');
-
   try {
-    const playlist = await ytpl(playlistUrl, { pages: Infinity });
-    const videos = playlist.items;
+    let { playlistUrl } = req.body;
+    if (!playlistUrl) return res.status(400).send('Envie { playlistUrl: "URL_da_playlist" }');
+
+    // Remove parâmetros extras do link
+    const cleanUrl = playlistUrl.split('&')[0];
+    const playlist = await ytpl(cleanUrl, { pages: Infinity });
+    const videos = playlist.items.filter(v => !v.isPrivate && !v.isDeleted);
 
     const dir = await mkdtemp(join(tmpdir(), 'wav-'));
     res.setHeader('Content-Type', 'application/zip');
@@ -32,6 +33,7 @@ app.post('/download', async (req, res) => {
     let index = 1;
     for (const video of videos) {
       try {
+        console.log(`Baixando: ${video.title}`);
         const tmpFile = join(dir, `input${index}.mp3`);
         await new Promise((resolve, reject) => {
           ytdl(video.url, { filter: 'audioonly' })
@@ -53,17 +55,16 @@ app.post('/download', async (req, res) => {
         });
 
         const cleanName = video.title.replace(/[^a-zA-Z0-9-_]/g, '_').slice(0, 100);
-        const finalName = `${String(index).padStart(3, '0')} - ${cleanName}.wav`;
-        archive.file(outFile, { name: finalName });
-      } catch (e) {
-        console.error('Erro no vídeo', video.title, e);
+        archive.file(outFile, { name: `${String(index).padStart(3,'0')}-${cleanName}.wav` });
+      } catch(e) {
+        console.log(`Erro no vídeo ${video.title}, pulando...`);
       }
       index++;
     }
 
     await archive.finalize();
-  } catch (e) {
-    console.error('Erro ao processar playlist', e);
+  } catch(e) {
+    console.error(e);
     res.status(500).send('Erro ao processar playlist');
   }
 });
