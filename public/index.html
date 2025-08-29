@@ -2,38 +2,30 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Downloader WAV/MP3</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.11.0/jszip.min.js"></script>
+  <title>Playlist Downloader WAV</title>
 </head>
 <body>
-  <h1>Baixar vídeos curtos do YouTube</h1>
-  <textarea id="urls" rows="5" cols="50" placeholder="Cole links (1 por linha)"></textarea><br>
+  <h1>Baixar Playlist em WAV</h1>
+  <textarea id="playlistUrl" rows="2" cols="50" placeholder="Cole o link da playlist do YouTube"></textarea><br>
   <button onclick="baixar()">Baixar</button>
 
   <script>
     async function baixar() {
-      const urls = document.getElementById('urls').value.split('\n').map(u => u.trim()).filter(Boolean);
-      if (!urls.length) return alert('Cole pelo menos um link!');
+      const playlistUrl = document.getElementById('playlistUrl').value.trim();
+      if (!playlistUrl) return alert('Cole o link da playlist');
 
-      const zip = new JSZip();
+      const res = await fetch('/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playlistUrl })
+      });
 
-      for (let i = 0; i < urls.length; i++) {
-        const url = urls[i];
-        try {
-          // Aqui você precisaria de uma API pública que retorna MP3/WAV direto do link
-          const audioUrl = `https://api.exemplo.com/getAudio?url=${encodeURIComponent(url)}`;
-          const response = await fetch(audioUrl);
-          const blob = await response.blob();
-          zip.file(`track${i+1}.mp3`, blob);
-        } catch(e) {
-          console.error('Erro no link', url, e);
-        }
-      }
+      if (!res.ok) return alert('Erro ao baixar a playlist');
 
-      const content = await zip.generateAsync({type:"blob"});
+      const blob = await res.blob();
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(content);
-      a.download = "playlist.zip";
+      a.href = URL.createObjectURL(blob);
+      a.download = 'playlist.zip';
       a.click();
     }
   </script>
