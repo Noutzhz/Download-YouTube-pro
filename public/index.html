@@ -6,17 +6,22 @@
 </head>
 <body>
   <h1>Baixar Playlist em WAV</h1>
-  <textarea id="urls" rows="10" cols="50" placeholder="Cole as URLs (uma por linha)"></textarea><br>
+  <textarea id="playlistUrl" rows="2" cols="50" placeholder="Cole o link da playlist do YouTube"></textarea><br>
   <button onclick="baixar()">Baixar</button>
 
   <script>
     async function baixar() {
-      const urls = document.getElementById('urls').value.split('\n').map(u => u.trim()).filter(Boolean);
+      const playlistUrl = document.getElementById('playlistUrl').value.trim();
+      if (!playlistUrl) return alert('Cole o link da playlist');
+
       const res = await fetch('/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ urls })
+        body: JSON.stringify({ playlistUrl })
       });
+
+      if (!res.ok) return alert('Erro ao baixar a playlist');
+
       const blob = await res.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
